@@ -5,7 +5,11 @@
 
 /**
  *
+<<<<<<< HEAD
  * 
+=======
+ * @author Usuario
+>>>>>>> cc2a5695396e76ec584e7e13f7c7316f4d6a7926
  */
 public class Modelo {
     private String descricao;
