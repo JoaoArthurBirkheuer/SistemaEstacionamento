@@ -5,7 +5,7 @@
 
 /**
  *
- * @author Usuario
+ * 
  */
 public class Modelo {
     private String descricao;
