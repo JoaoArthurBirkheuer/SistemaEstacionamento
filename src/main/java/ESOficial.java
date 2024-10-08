@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  *
- * @author Usuario
+ * @author Usuario eu usuario
  */
 public class ESOficial extends EntradaSaida {
     private int kmRegistrado;
