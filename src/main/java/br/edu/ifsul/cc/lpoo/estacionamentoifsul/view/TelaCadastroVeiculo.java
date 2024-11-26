@@ -1,106 +1,181 @@
 package br.edu.ifsul.cc.lpoo.estacionamentoifsul.view;
 
+import br.edu.ifsul.cc.lpoo.estacionamentoifsul.lpoo_sistemaestacionamentoifsul.dao.PersistenciaJPA;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import model.*;
 
-public class TelaCadastroVeiculo extends javax.swing.JFrame {
+public class TelaCadastroVeiculo extends JFrame {
+    private JComboBox<Pessoa> cbProprietario;
+    private JComboBox<Modelo> cbModelo;
+    private JTextField txtPlaca, txtChassi, txtRenavan;
+    private JCheckBox chkOficial;
+    private JTable tabelaVeiculos;
+    private JButton btnSalvar, btnEditar, btnExcluir, btnAdicionarModelo;
 
-    private Object veiculo;
+    public TelaCadastroVeiculo() {
+        setTitle("Cadastro de Veículos");
+        setSize(600, 400);
+        setLayout(new BorderLayout());
 
-    public TelaCadastroVeiculo(Object veiculo) {
-        this.veiculo = veiculo;
-        initComponents();
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+
+        // Proprietário
+        formPanel.add(new JLabel("Proprietário:"));
+        cbProprietario = new JComboBox<>();
+        formPanel.add(cbProprietario);
+
+        // Modelo
+        formPanel.add(new JLabel("Modelo:"));
+        JPanel modeloPanel = new JPanel(new BorderLayout());
+        cbModelo = new JComboBox<>();
+        modeloPanel.add(cbModelo, BorderLayout.CENTER);
+
+        btnAdicionarModelo = new JButton("+");
+        modeloPanel.add(btnAdicionarModelo, BorderLayout.EAST);
+        formPanel.add(modeloPanel);
+
+        // Placa
+        formPanel.add(new JLabel("Placa:"));
+        txtPlaca = new JTextField();
+        formPanel.add(txtPlaca);
+
+        // Oficial
+        chkOficial = new JCheckBox("Veículo Oficial");
+        chkOficial.addActionListener(e -> toggleCamposOficiais(chkOficial.isSelected()));
+        formPanel.add(chkOficial);
+        formPanel.add(new JLabel()); // Placeholder vazio
+
+        // Chassi
+        formPanel.add(new JLabel("Chassi:"));
+        txtChassi = new JTextField();
+        txtChassi.setEnabled(false);
+        formPanel.add(txtChassi);
+
+        // Renavan
+        formPanel.add(new JLabel("Renavan:"));
+        txtRenavan = new JTextField();
+        txtRenavan.setEnabled(false);
+        formPanel.add(txtRenavan);
+
+        add(formPanel, BorderLayout.NORTH);
+
+        // Tabela
+        tabelaVeiculos = new JTable(new DefaultTableModel(new String[]{"Proprietário", "Modelo", "Placa", "Oficial"}, 0));
+        add(new JScrollPane(tabelaVeiculos), BorderLayout.CENTER);
+
+        // Botões
+        JPanel buttonPanel = new JPanel();
+        btnSalvar = new JButton("Salvar");
+        btnEditar = new JButton("Editar");
+        btnExcluir = new JButton("Excluir");
+        buttonPanel.add(btnSalvar);
+        buttonPanel.add(btnEditar);
+        buttonPanel.add(btnExcluir);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Listeners
+        btnSalvar.addActionListener(e -> salvarVeiculo());
+        btnEditar.addActionListener(e -> editarVeiculo());
+        btnExcluir.addActionListener(e -> excluirVeiculo());
+        btnAdicionarModelo.addActionListener(e -> abrirCadastroModelo());
+
+        carregarDados();
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    @SuppressWarnings("unchecked")
-    private void initComponents() {
+    private void carregarDados() {
+        try {
+            PersistenciaJPA persistencia = new PersistenciaJPA();
 
-        lblPlaca = new JLabel("Placa:");
-        txtPlaca = new JTextField();
-        lblModelo = new JLabel("Modelo:");
-        txtModelo = new JTextField();
-        lblCor = new JLabel("Cor:");
-        txtCor = new JTextField();
-        lblTipoVeiculo = new JLabel("Tipo:");
-        cbTipoVeiculo = new JComboBox<>(new String[]{"CARRO", "MOTOCICLETA"});
-        btnSalvar = new JButton("Salvar");
-        btnCancelar = new JButton("Cancelar");
+            // Carregar proprietários
+            cbProprietario.removeAllItems();
+            List<Pessoa> pessoas = persistencia.getPessoas();
+            if (pessoas != null) {
+                for (Pessoa p : pessoas) {
+                    cbProprietario.addItem(p);
+                }
+            }
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle(veiculo == null ? "Novo Veículo" : "Editar Veículo");
+            // Carregar modelos
+            cbModelo.removeAllItems();
+            List<Modelo> modelos = persistencia.getModelos();
+            if (modelos != null) {
+                for (Modelo m : modelos) {
+                    cbModelo.addItem(m);
+                }
+            }
 
-        // Configuração do layout
-        GroupLayout layout = new GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                            .addComponent(lblPlaca)
-                            .addComponent(lblModelo)
-                            .addComponent(lblCor)
-                            .addComponent(lblTipoVeiculo))
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                            .addComponent(txtPlaca)
-                            .addComponent(txtModelo)
-                            .addComponent(txtCor)
-                            .addComponent(cbTipoVeiculo, 0, 200, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnSalvar)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnCancelar)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblPlaca)
-                    .addComponent(txtPlaca, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblModelo)
-                    .addComponent(txtModelo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblCor)
-                    .addComponent(txtCor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblTipoVeiculo)
-                    .addComponent(cbTipoVeiculo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSalvar)
-                    .addComponent(btnCancelar))
-                .addContainerGap())
-        );
+            // Atualizar tabela
+            atualizarTabelaVeiculos(persistencia);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar dados: " + e.getMessage());
+        }
+    }
 
-        // Ações dos botões
-        btnSalvar.addActionListener(evt -> salvarVeiculo());
-        btnCancelar.addActionListener(evt -> dispose());
-
-        pack();
+    private void atualizarTabelaVeiculos(PersistenciaJPA persistencia) {
+        try {
+            DefaultTableModel model = (DefaultTableModel) tabelaVeiculos.getModel();
+            model.setRowCount(0);
+            List<Veiculo> veiculos = persistencia.getVeiculos();
+            if (veiculos != null) {
+                for (Veiculo v : veiculos) {
+                    model.addRow(new Object[]{
+                            v.getProprietario().getNome(),
+                            v.getModelo().getDescricao(),
+                            v.getPlaca(),
+                            (v instanceof VeiOficial)
+                    });
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao atualizar tabela: " + e.getMessage());
+        }
     }
 
     private void salvarVeiculo() {
-        // Lógica para salvar ou editar o veículo
-        JOptionPane.showMessageDialog(this, "Veículo salvo!");
-        dispose();
+        try {
+            PersistenciaJPA persistencia = new PersistenciaJPA();
+            Veiculo veiculo;
+            if (chkOficial.isSelected()) {
+                veiculo = new VeiOficial();
+                ((VeiOficial) veiculo).setChassi(txtChassi.getText());
+                ((VeiOficial) veiculo).setRenavan(txtRenavan.getText());
+            } else {
+                veiculo = new Veiculo();
+            }
+
+            veiculo.setProprietario((Pessoa) cbProprietario.getSelectedItem());
+            veiculo.setModelo((Modelo) cbModelo.getSelectedItem());
+            veiculo.setPlaca(txtPlaca.getText());
+
+            persistencia.persist(veiculo);
+            JOptionPane.showMessageDialog(this, "Veículo salvo com sucesso!");
+            carregarDados();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar veículo: " + e.getMessage());
+        }
     }
 
-    private JLabel lblPlaca;
-    private JTextField txtPlaca;
-    private JLabel lblModelo;
-    private JTextField txtModelo;
-    private JLabel lblCor;
-    private JTextField txtCor;
-    private JLabel lblTipoVeiculo;
-    private JComboBox<String> cbTipoVeiculo;
-    private JButton btnSalvar;
-    private JButton btnCancelar;
+    private void editarVeiculo() {
+        JOptionPane.showMessageDialog(this, "Funcionalidade de edição ainda não implementada!");
+    }
+
+    private void excluirVeiculo() {
+        JOptionPane.showMessageDialog(this, "Funcionalidade de exclusão ainda não implementada!");
+    }
+
+    private void abrirCadastroModelo() {
+        TelaCadastroModelo tela = new TelaCadastroModelo();
+        tela.setVisible(true);
+    }
+
+    private void toggleCamposOficiais(boolean isOficial) {
+        txtChassi.setEnabled(isOficial);
+        txtRenavan.setEnabled(isOficial);
+    }
 }

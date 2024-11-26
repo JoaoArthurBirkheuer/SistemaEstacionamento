@@ -14,6 +14,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+
+import model.Modelo;
 import model.Pessoa;
 import model.TipoVeiculo;
 import model.Veiculo;
@@ -184,5 +186,49 @@ public List<Veiculo> buscarVeiculosPorTipo(TipoVeiculo tipoVeiculo) throws Excep
              .getResultList();
 }
 
+public List<Veiculo> getVeiculos() {
+        try {
+            return entity.createQuery("SELECT v FROM Veiculo v", Veiculo.class).getResultList();
+        } catch (Exception e) {
+            System.err.println("Erro ao listar veículos: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public List<Veiculo> getVeiculosPorPlaca(String placa) {
+        try {
+            return entity.createQuery("SELECT v FROM Veiculo v WHERE lower(v.placa) LIKE :placa", Veiculo.class)
+                    .setParameter("placa", "%" + placa.toLowerCase() + "%")
+                    .getResultList();
+        } catch (Exception e) {
+            System.err.println("Erro ao filtrar veículos por placa: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    public List<Veiculo> getVeiculosOficiais(boolean oficial) {
+        try {
+            String query = oficial ? "SELECT v FROM VeiOficial v" : "SELECT v FROM Veiculo v WHERE v NOT IN (SELECT o FROM VeiOficial o)";
+            return entity.createQuery(query, Veiculo.class).getResultList();
+        } catch (Exception e) {
+            System.err.println("Erro ao filtrar veículos oficiais: " + e.getMessage());
+            return null;
+        }
+    }
+     
+    public List<Modelo> getModelos() {
+        try {
+            return entity.createQuery("SELECT m FROM Modelo m", Modelo.class).getResultList();
+        } catch (Exception e) {
+            System.err.println("Erro ao listar modelos: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public Veiculo findVeiculoPorPlaca(String placa) {
+    return entity.createQuery("SELECT v FROM Veiculo v WHERE v.placa = :placa", Veiculo.class)
+                        .setParameter("placa", placa)
+                        .getSingleResult();
+}
 
 }
