@@ -15,6 +15,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import model.Pessoa;
+import model.TipoVeiculo;
+import model.Veiculo;
 import model.VinculoPessoa;
 
 
@@ -170,6 +172,16 @@ public Pessoa buscarPessoaPorNome(String nome) {
     return entity.createQuery("SELECT p FROM Pessoa p WHERE LOWER(p.nome) = :nome", Pessoa.class)
             .setParameter("nome", nome.toLowerCase())
             .getSingleResult();
+}
+
+public List<Veiculo> buscarVeiculosPorTipo(TipoVeiculo tipoVeiculo) throws Exception {
+    if (tipoVeiculo == null) {
+        throw new IllegalArgumentException("Tipo de veículo não pode ser nulo!");
+    }
+
+    return entity.createQuery("SELECT v FROM Veiculo v WHERE v.tipoVeiculo = :tipo", Veiculo.class)
+             .setParameter("tipo", tipoVeiculo)
+             .getResultList();
 }
 
 
